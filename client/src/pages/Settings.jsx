@@ -523,6 +523,10 @@ function ImportSection({ onError, onMessage, onImported }) {
 
   async function handleImport() {
     if (!file) return;
+    if (file.size > 4 * 1024 * 1024) {
+      onError("That file is over 4 MB, which is more than the website accepts in one upload. A normal backup is far smaller.");
+      return;
+    }
     const sure = window.confirm(
       "This REPLACES all current matches, 1v1s and players with the contents of the file. " +
         "If you might want the current data, download a backup first (Add match page). Continue?"

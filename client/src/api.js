@@ -1,3 +1,4 @@
+import { shrinkForUpload } from "./lib/images.js";
 // Small wrapper around fetch so every page handles errors the same way.
 
 const KEY = "adminPassword";
@@ -89,9 +90,10 @@ export const recalculateStats = () => request("/stats/recalculate", { method: "P
 
 // Matches: reading, uploading and submitting what Gemini read are public;
 // editing the numbers, editing a saved match and deleting need the password
-export const extractStats = (file) => {
+export const extractStats = async (file) => {
   const form = new FormData();
-  form.append("screenshot", file);
+  // Big screenshots are shrunk first so the request stays under the host's size limit.
+  form.append("screenshot", await shrinkForUpload(file));
   return request("/extract", { method: "POST", body: form });
 };
 export const getMatches = () => request("/matches");

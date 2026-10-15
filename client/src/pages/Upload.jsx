@@ -14,7 +14,7 @@ import useAdmin from "../components/useAdmin.js";
 import { blankPlayer, rowFromServer, rowToPayload } from "../lib/matchForm.js";
 import { addToQueue, listQueue, queueItemToFile, removeFromQueue } from "../lib/queue.js";
 
-const MAX_BYTES = 5 * 1024 * 1024; // same limit as the server
+const MAX_BYTES = 15 * 1024 * 1024; // bigger files are shrunk before they are sent
 const TYPES = ["image/png", "image/jpeg", "image/webp"];
 
 // Errors that will never fix themselves for that screenshot, so it leaves the queue.
@@ -132,7 +132,7 @@ export default function Upload() {
     const good = picked.filter((f) => TYPES.includes(f.type) && f.size <= MAX_BYTES);
     const skipped = picked.length - good.length;
     if (skipped) {
-      setError(`${plural(skipped, "file was", "files were")} skipped: only PNG, JPG or WebP up to 5 MB.`);
+      setError(`${plural(skipped, "file was", "files were")} skipped: only PNG, JPG or WebP up to 15 MB.`);
     }
 
     if (good.length <= 1) {
@@ -334,7 +334,7 @@ export default function Upload() {
 
         <section className="panel">
           <label className="field">
-            <span>Screenshot (PNG, JPG or WebP, up to 5 MB). Pick several to queue them all.</span>
+            <span>Screenshot (PNG, JPG or WebP, up to 15 MB). Pick several to queue them all.</span>
             <input
               key={inputKey}
               type="file"

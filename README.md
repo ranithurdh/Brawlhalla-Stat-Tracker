@@ -74,6 +74,29 @@ Render / Railway / similar (a free Render "Web Service" works):
 Leave `CLIENT_ORIGIN` unset. Free hosts sleep when idle, so the first visit after a quiet
 spell can take about 30 seconds. Your data is safe in Atlas either way.
 
+## Deploy on Vercel (free, no always-on server)
+
+The site is set up for Vercel too: the React app is served from Vercel's network and
+`api/index.js` runs the Express server as a function (`vercel.json` connects them).
+
+1. Push the project to GitHub (the folder with `package.json`, `client`, `server`, `api`).
+2. On vercel.com sign in with GitHub, **Add New > Project**, import the repo. Leave
+   **Root Directory** empty and leave the build settings alone (they come from `vercel.json`).
+3. Add **Environment Variables**: `MONGODB_URI`, `ADMIN_PASSWORD`, `UPLOAD_CODE`,
+   `GEMINI_API_KEY`. Click **Deploy**.
+4. Open `https://YOUR-SITE.vercel.app/api/health`. You should see `{"ok":true}`.
+
+Good to know:
+- Vercel accepts requests up to 4.5 MB, so the browser shrinks big screenshots before
+  sending them. The background image is limited to about 2.5 MB and a backup file to 4 MB.
+- The wrong-password lockout and the screenshot limit are counted in MongoDB (collection
+  `ratelimits`) because Vercel runs many short-lived instances.
+- If Gemini screenshots fail with a timeout after about 10 seconds, turn on **Fluid
+  Compute** in the Vercel project's Settings > Functions (current plans allow longer runs).
+- The root `package.json` repeats the server's dependency list on purpose (Vercel installs
+  from the root). If you add a package to `server/package.json`, add it to the root too.
+- Keep `0.0.0.0/0` allowed in Atlas Network Access, because Vercel has no fixed IP address.
+
 ## Backup and restore
 
 - **Download backup** (admin): on the Add match page, unlock Admin and press **Download

@@ -7,7 +7,8 @@ const router = Router();
 
 const PATTERN = /^data:(image\/(?:png|jpeg|webp));base64,([A-Za-z0-9+/=]+)$/;
 const MAX_FAVICON = 200_000; // characters of data URL
-const MAX_BACKGROUND = 4_500_000;
+// Kept under 3.5 MB of text so the upload fits Vercel's 4.5 MB request limit.
+const MAX_BACKGROUND = 3_500_000;
 
 const bad = (message) => {
   const err = new Error(message);
@@ -78,7 +79,7 @@ router.put("/", requireAdmin, express.json({ limit: "6mb" }), async (req, res, n
         update.backgroundAt = null;
       } else {
         if (!PATTERN.test(background) || background.length > MAX_BACKGROUND) {
-          throw bad("Use a PNG, JPG or WebP background image under about 3 MB.");
+          throw bad("Use a PNG, JPG or WebP background image under about 2.5 MB.");
         }
         update.background = background;
         update.backgroundAt = new Date();

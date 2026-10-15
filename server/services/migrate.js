@@ -5,6 +5,7 @@ import Player from "../models/Player.js";
 import Settings from "../models/Settings.js";
 import PlayerStats from "../models/PlayerStats.js";
 import TeamStats from "../models/TeamStats.js";
+import RateLimit from "../models/RateLimit.js";
 import { makeRoster, normTag, playerForRow } from "./roster.js";
 import { recomputeAllStats } from "./stats.js";
 
@@ -139,7 +140,7 @@ async function seedPlayers() {
 }
 
 export async function prepareDatabase() {
-  await Promise.all([Match.init(), Duel.init(), Player.init(), PlayerStats.init(), TeamStats.init(), Settings.init()]);
+  await Promise.all([Match.init(), Duel.init(), Player.init(), PlayerStats.init(), TeamStats.init(), Settings.init(), RateLimit.init()]);
   await migratePrompt();
   const converted = await migrateMatches();
   await seedPlayers();

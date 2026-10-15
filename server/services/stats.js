@@ -27,8 +27,20 @@ function membersInMatch(roster, match) {
 }
 
 // The best-brawler timeline replays every match in order, so it is kept in
-// memory and thrown away whenever a match or player changes.
+// memory. It is thrown away when this server changes a match or player, and it
+// is also checked against the database each time (timelineKey), because on a
+// serverless host another instance may have saved a match in the meantime.
 let timelineCache = null;
+async function timelineKey() {
+  const [matchCount, lastMatch, playerCount, lastPlayer] = await Promise.all([
+    Match.countDocuments(),
+    Match.findOne().sort({ updatedAt: -1 }).select("updatedAt").lean(),
+    Player.countDocuments(),
+    Player.findOne().sort({ updatedAt: -1 }).select("updatedAt").lean(),
+  ]);
+  const t = (d) => (d?.updatedAt ? new Date(d.updatedAt).getTime() : 0);
+  return [matchCount, t(lastMatch), playerCount, t(lastPlayer)].join(":");
+}
 const invalidateTimeline = () => {
   timelineCache = null;
 };
@@ -118,7 +130,8 @@ const round1 = (n) => (n === null ? null : Math.round(n * 10) / 10);
 // Every player's best-brawler score after each match, oldest first. Scores are
 // running (everything up to that match), so the last point equals the current board.
 async function getTimeline() {
-  if (timelineCache) return timelineCache;
+  const key = await timelineKey();
+  if (timelineCache && timelineCache.key === key) return timelineCache.data;
   const [players, matches] = await Promise.all([
     Player.find().sort({ name: 1 }),
     Match.find().sort({ createdAt: 1 }),
@@ -134,11 +147,12 @@ async function getTimeline() {
     points.push({ t: match.createdAt, matchId: String(match._id), scores });
   }
 
-  timelineCache = {
+  const data = {
     players: players.map((p) => ({ id: String(p._id), name: p.name })),
     points,
   };
-  return timelineCache;
+  timelineCache = { key, data };
+  return data;
 }
 
 // Home page: the best-brawler ranking (podium + table) and the timeline.
