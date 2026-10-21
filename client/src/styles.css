@@ -555,3 +555,10 @@ input[type="range"] { padding: 0; border: 0; background: transparent; accent-col
 .queue-thumb { width: 64px; height: 44px; object-fit: cover; border-radius: 6px; background: var(--panel-2); border: 1px solid var(--line); flex: none; }
 @media (max-width: 980px) { .duel-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 640px) { .duel-grid { grid-template-columns: 1fr; } .elo strong { font-size: 3rem; } }
+
+/* Boards with two value columns (Most damage in one match) */
+.col-head { display: flex; justify-content: flex-end; gap: 14px; margin: 0 0 4px; color: var(--muted); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; }
+.col-head span, .value.col { min-width: 5.5rem; text-align: right; }
+.value.second { color: var(--muted); font-size: 1.1rem; }
+.row-entry.gold .value.second, .row-entry.silver .value.second, .row-entry.bronze .value.second { color: var(--muted); }
+.value.col + .value.col { margin-left: 14px; }
