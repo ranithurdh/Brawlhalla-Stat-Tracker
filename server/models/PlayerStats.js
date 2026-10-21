@@ -24,6 +24,9 @@ const PlayerStatsSchema = new mongoose.Schema({
   minDamage: { type: Number, default: null },
   minDamageMatch: { type: mongoose.Schema.Types.ObjectId, default: null },
   minDamageAt: { type: Date, default: null },
+  maxDamageSmall: { type: Number, default: null },
+  maxDamageSmallMatch: { type: mongoose.Schema.Types.ObjectId, default: null },
+  maxDamageSmallAt: { type: Date, default: null },
 });
 
 export default mongoose.model("PlayerStats", PlayerStatsSchema);
