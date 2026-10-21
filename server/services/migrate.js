@@ -25,7 +25,7 @@ const STARTING_PLAYERS = [
 //     life; most-dominated counts added.
 // 4 = most dominated is the highest (damage taken - damage done) per life in a
 //     match, counted per match like most dominant.
-const STATS_VERSION = 5;
+const STATS_VERSION = 6;
 
 export function makeFingerprint(players) {
   const parts = players
