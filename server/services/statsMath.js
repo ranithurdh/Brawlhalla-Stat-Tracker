@@ -9,6 +9,11 @@ export const lives = (falls) => Math.max(1, falls);
 // match where the player lost all of them (3 falls).
 export const LIVES_PER_MATCH = 3;
 
+// "Most damage in one match" is ranked on matches against 3 players or fewer
+// (everyone else in the match, so the match has at most 4 players).
+// Change this number to move the line.
+export const MAX_OPPONENTS_FOR_RANKED_DAMAGE = 3;
+
 const isNum = (v) => typeof v === "number" && Number.isFinite(v);
 
 export const emptyStats = (playerId) => ({
