@@ -73,7 +73,15 @@ app.use("/api/duels", duelRoutes);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const clientDist = path.resolve(__dirname, "../client/dist");
 if (fs.existsSync(path.join(clientDist, "index.html"))) {
-  app.use(express.static(clientDist));
+  app.use(
+    express.static(clientDist, {
+      setHeaders: (res, filePath) => {
+        // The service worker must always be re-checked so updates reach people.
+        if (filePath.endsWith("sw.js")) res.setHeader("Cache-Control", "no-cache");
+        if (filePath.endsWith(".webmanifest")) res.setHeader("Content-Type", "application/manifest+json");
+      },
+    })
+  );
   app.get(/^\/(?!api\/).*/, (req, res) => res.sendFile(path.join(clientDist, "index.html")));
 }
 app.use("/api", (req, res) => res.status(404).json({ error: "Unknown API route." }));

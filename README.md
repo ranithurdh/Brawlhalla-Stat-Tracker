@@ -1,4 +1,4 @@
-# Sandun Brawlding (MERN)
+# Sandun Brawlding
 
 Upload a Brawlhalla post-match screenshot, let Gemini read the stats, check them,
 and save the match to MongoDB.

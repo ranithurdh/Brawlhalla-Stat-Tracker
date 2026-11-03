@@ -9,6 +9,22 @@ export const lives = (falls) => Math.max(1, falls);
 // match where the player lost all of them (3 falls).
 export const LIVES_PER_MATCH = 3;
 
+// "Most damage in one match" is ranked on matches where the opposing team had
+// 3 players or fewer. Against a bigger team there are more people to hit, so
+// that damage only shows in the "Any match" column.
+export const MAX_OPPONENTS_FOR_RANKED_DAMAGE = 3;
+
+// How many players were on the other side from this row: everyone in the match
+// with the opposite result. (If the result isn't known, it falls back to
+// everyone else in the match.)
+export function opponentCount(row, match) {
+  const players = match.players || [];
+  if (row.won === true || row.won === false) {
+    return players.filter((p) => p.won === !row.won).length;
+  }
+  return players.length - 1;
+}
+
 const isNum = (v) => typeof v === "number" && Number.isFinite(v);
 
 export const emptyStats = (playerId) => ({
@@ -27,6 +43,9 @@ export const emptyStats = (playerId) => ({
   maxDamage: null,
   maxDamageMatch: null,
   maxDamageAt: null,
+  maxDamageSmall: null,
+  maxDamageSmallMatch: null,
+  maxDamageSmallAt: null,
   minDamage: null,
   minDamageMatch: null,
   minDamageAt: null,
@@ -90,6 +109,19 @@ export function addRow(stats, row, match) {
     stats.maxDamageMatch = match._id;
     stats.maxDamageAt = match.createdAt;
   }
+
+    // Same as above, but only when the opposing team had 3 players or fewer.
+  const opponents = opponentCount(row, match);
+  
+  if (
+    opponents <= MAX_OPPONENTS_FOR_RANKED_DAMAGE &&
+    (stats.maxDamageSmall === null || stats.maxDamageSmall === undefined || row.damageDone > stats.maxDamageSmall)
+  ) {
+    stats.maxDamageSmall = row.damageDone;
+    stats.maxDamageSmallMatch = match._id;
+    stats.maxDamageSmallAt = match.createdAt;
+  }
+  
   // Least damage: only matches where all 3 lives were lost are eligible.
   const lostAllLives = row.falls >= LIVES_PER_MATCH;
   if (lostAllLives && (stats.minDamage === null || row.damageDone < stats.minDamage)) {
@@ -143,6 +175,7 @@ export function toRow(player, s) {
     dominatedMatches: s.dominatedMatches || 0,
     dominatedRate: s.matches ? (s.dominatedMatches || 0) / s.matches : null,
     maxDamage: s.maxDamage,
+    maxDamageSmall: s.maxDamageSmall ?? null,
     minDamage: s.minDamage,
   };
 }
@@ -172,7 +205,9 @@ export function buildBoards(rows) {
       ratedMatches: r.ratedMatches,
       kos: r.kos,
       deaths: r.deaths,
-      damageDone: r.damageDone,
+      damageDone: r.damageDone,  
+      maxDamage: r.maxDamage,
+      maxDamageSmall: r.maxDamageSmall,
       dominantMatches: r.dominantMatches,
       dominatedMatches: r.dominatedMatches,
     }));
@@ -181,7 +216,7 @@ export function buildBoards(rows) {
   return {
     winRate: board("winRate", "desc"),
     damagePerLife: board("damagePerLife", "desc"),
-    maxDamage: board("maxDamage", "desc"),
+    maxDamage: board("maxDamageSmall", "desc"),
     koDeathRatio: board("koDeathRatio", "desc"),
     minDamage: board("minDamage", "asc"),
     dominantRate: board("dominantRate", "desc"),

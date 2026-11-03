@@ -28,6 +28,8 @@ const BOARDS = [
     about: "Best single match",
     format: (v) => int(v),
     line: (e) => `${e.matches} matches played`,
+    columns: ["Vs 3 or fewer", "Any match"],
+    second: (e) => e.maxDamage,
   },
   {
     key: "minDamage",
@@ -93,24 +95,40 @@ function Rows({ board, entries, startAt }) {
     return <p className="hint">{board.empty || "No data yet."}</p>;
   }
   return (
-    <ol className="rows" start={startAt}>
-      {entries.map((e) => (
-        <li key={e.playerId} className={`row-entry ${e.rank <= 3 ? placeClass[e.rank - 1] : ""}`}>
-          <span className="rank">{e.rank}</span>
-          {e.rank <= 3 &&
-            (e.faces ? (
-              <Faces entry={e} />
-            ) : (
-              <Avatar name={e.name} face={e.face} size={40} className="ring" />
-            ))}
-          <span className="who">
-            <strong>{e.name}</strong>
-            <small>{e.value === null ? "no data yet" : board.line(e)}</small>
-          </span>
-          <span className="value">{e.value === null ? "—" : board.format(e.value)}</span>
-        </li>
-      ))}
-    </ol>
+    <>
+      {board.columns && (
+        <div className="col-head">
+          {board.columns.map((c) => (
+            <span key={c}>{c}</span>
+          ))}
+        </div>
+      )}
+      <ol className="rows" start={startAt}>
+        {entries.map((e) => (
+          <li key={e.playerId} className={`row-entry ${e.rank <= 3 ? placeClass[e.rank - 1] : ""}`}>
+            <span className="rank">{e.rank}</span>
+            {e.rank <= 3 &&
+              (e.faces ? (
+                <Faces entry={e} />
+              ) : (
+                <Avatar name={e.name} face={e.face} size={40} className="ring" />
+              ))}
+            <span className="who">
+              <strong>{e.name}</strong>
+              <small>{e.value === null ? "no data yet" : board.line(e)}</small>
+            </span>
+            <span className={`value ${board.second ? "col" : ""}`}>
+              {e.value === null ? "—" : board.format(e.value)}
+            </span>
+            {board.second && (
+              <span className="value col second">
+                {board.second(e) === null ? "—" : board.format(board.second(e))}
+              </span>
+            )}
+          </li>
+        ))}
+      </ol>
+    </>
   );
 }
 
